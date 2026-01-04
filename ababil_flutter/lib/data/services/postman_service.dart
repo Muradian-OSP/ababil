@@ -2,8 +2,9 @@ import 'dart:convert';
 import 'dart:ffi';
 import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
-import '../../domain/models/postman/collection.dart';
-import '../../domain/models/postman/environment.dart';
+import '../../domain/models/collection.dart';
+import '../../domain/models/environment.dart';
+import '../../domain/models/postman_converter.dart';
 import 'native_library_service.dart';
 
 typedef ParsePostmanCollectionNative = Pointer<Utf8> Function(Pointer<Utf8>);
@@ -52,14 +53,14 @@ class PostmanService {
     }
   }
 
-  static PostmanCollection? parseCollection(String jsonString) {
+  static Collection? parseCollection(String jsonString) {
     if (_parseCollection == null) {
       if (kDebugMode) {
         print('PostmanService: Library not initialized');
       }
       // Fallback to Dart parsing
       try {
-        return PostmanCollection.fromJsonString(jsonString);
+        return PostmanConverter.collectionFromPostmanJson(jsonString);
       } catch (e) {
         if (kDebugMode) {
           print('PostmanService: Error parsing collection: $e');
@@ -83,7 +84,7 @@ class PostmanService {
         }
         return null;
       }
-      return PostmanCollection.fromJson(json);
+      return Collection.fromJson(json);
     } catch (e) {
       if (kDebugMode) {
         print('PostmanService: Error parsing collection: $e');
@@ -92,10 +93,10 @@ class PostmanService {
     }
   }
 
-  static String? collectionToJson(PostmanCollection collection) {
+  static String? collectionToJson(Collection collection) {
     if (_collectionToJson == null) {
       // Fallback to Dart serialization
-      return collection.toJsonString();
+      return PostmanConverter.collectionToPostmanJson(collection);
     }
 
     try {
@@ -114,12 +115,11 @@ class PostmanService {
     }
   }
 
-  static PostmanEnvironment? parseEnvironment(String jsonString) {
+  static Environment? parseEnvironment(String jsonString) {
     if (_parseEnvironment == null) {
       // Fallback to Dart parsing
       try {
-        final json = jsonDecode(jsonString) as Map<String, dynamic>;
-        return PostmanEnvironment.fromJson(json);
+        return PostmanConverter.environmentFromPostmanJson(jsonString);
       } catch (e) {
         if (kDebugMode) {
           print('PostmanService: Error parsing environment: $e');
@@ -141,7 +141,7 @@ class PostmanService {
         }
         return null;
       }
-      return PostmanEnvironment.fromJson(json);
+      return Environment.fromJson(json);
     } catch (e) {
       if (kDebugMode) {
         print('PostmanService: Error parsing environment: $e');
@@ -150,10 +150,10 @@ class PostmanService {
     }
   }
 
-  static String? environmentToJson(PostmanEnvironment environment) {
+  static String? environmentToJson(Environment environment) {
     if (_environmentToJson == null) {
       // Fallback to Dart serialization
-      return jsonEncode(environment.toJson());
+      return PostmanConverter.environmentToPostmanJson(environment);
     }
 
     try {

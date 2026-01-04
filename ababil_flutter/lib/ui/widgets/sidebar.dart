@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:ababil_flutter/ui/viewmodels/collections_view_model.dart';
 import 'package:ababil_flutter/ui/viewmodels/home_view_model.dart';
 import 'package:ababil_flutter/ui/widgets/import_export_dialog.dart';
-import 'package:ababil_flutter/domain/models/postman/collection.dart';
-import 'package:ababil_flutter/domain/models/postman/request.dart';
+import 'package:ababil_flutter/ui/widgets/collection_dialogs.dart';
+import 'package:ababil_flutter/domain/models/collection.dart';
+import 'package:ababil_flutter/domain/models/http_request.dart';
+import 'package:ababil_flutter/domain/models/request_path.dart';
 
 class Sidebar extends StatefulWidget {
   final CollectionsViewModel collectionsViewModel;
@@ -244,7 +246,12 @@ class _CollectionsView extends StatelessWidget {
                     constraints: const BoxConstraints(),
                     tooltip: 'New Collection',
                     onSelected: (value) {
-                      if (value == 'import') {
+                      if (value == 'new') {
+                        CollectionDialogs.showCreateCollectionDialog(
+                          context,
+                          collectionsViewModel,
+                        );
+                      } else if (value == 'import') {
                         ImportExportDialog.showImportCollectionDialog(
                           context,
                           collectionsViewModel,
@@ -252,6 +259,10 @@ class _CollectionsView extends StatelessWidget {
                       }
                     },
                     itemBuilder: (context) => [
+                      const PopupMenuItem(
+                        value: 'new',
+                        child: Text('New Collection'),
+                      ),
                       const PopupMenuItem(
                         value: 'import',
                         child: Text('Import Collection'),
@@ -294,7 +305,7 @@ class _CollectionsView extends StatelessWidget {
               child: collectionsViewModel.collections.isEmpty
                   ? Center(
                       child: Text(
-                        'No collections\nClick + to import',
+                        'No collections\nClick + to create or import',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 12,
@@ -323,7 +334,7 @@ class _CollectionsView extends StatelessWidget {
 }
 
 class _CollectionItem extends StatefulWidget {
-  final PostmanCollection collection;
+  final Collection collection;
   final CollectionsViewModel collectionsViewModel;
   final HomeViewModel homeViewModel;
 
@@ -371,8 +382,27 @@ class _CollectionItemState extends State<_CollectionItem> {
                   icon: const Icon(Icons.more_vert, size: 16),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
-                  onSelected: (value) {
-                    if (value == 'export') {
+                  onSelected: (value) async {
+                    if (value == 'add_request') {
+                      await CollectionDialogs.showAddRequestDialog(
+                        context,
+                        widget.collectionsViewModel,
+                        widget.homeViewModel,
+                        widget.collection,
+                      );
+                    } else if (value == 'add_folder') {
+                      await CollectionDialogs.showAddFolderDialog(
+                        context,
+                        widget.collectionsViewModel,
+                        widget.collection,
+                      );
+                    } else if (value == 'edit') {
+                      await CollectionDialogs.showEditCollectionDialog(
+                        context,
+                        widget.collectionsViewModel,
+                        widget.collection,
+                      );
+                    } else if (value == 'export') {
                       ImportExportDialog.showExportCollectionDialog(
                         context,
                         widget.collectionsViewModel,
@@ -385,6 +415,15 @@ class _CollectionItemState extends State<_CollectionItem> {
                     }
                   },
                   itemBuilder: (context) => [
+                    const PopupMenuItem(
+                      value: 'add_request',
+                      child: Text('Add Request'),
+                    ),
+                    const PopupMenuItem(
+                      value: 'add_folder',
+                      child: Text('Add Folder'),
+                    ),
+                    const PopupMenuItem(value: 'edit', child: Text('Edit')),
                     const PopupMenuItem(value: 'export', child: Text('Export')),
                     const PopupMenuItem(value: 'delete', child: Text('Delete')),
                   ],
@@ -398,30 +437,56 @@ class _CollectionItemState extends State<_CollectionItem> {
     );
   }
 
-  List<Widget> _buildRequestItems(List<PostmanCollectionItem> items) {
+  List<Widget> _buildRequestItems(
+    List<CollectionItem> items, {
+    List<int> itemIndices = const [],
+  }) {
     final widgets = <Widget>[];
-    for (final item in items) {
+    final collectionIndex = widget.collectionsViewModel.collections.indexOf(
+      widget.collection,
+    );
+
+    for (int i = 0; i < items.length; i++) {
+      final item = items[i];
+      final currentIndices = [...itemIndices, i];
+
       if (item.request != null) {
+        // This is a request item
+        final requestPath = RequestPath(
+          collectionIndex: collectionIndex,
+          itemIndices: currentIndices,
+        );
+
         widgets.add(
           _RequestItem(
             collectionName: widget.collection.info.name,
             requestName: item.name,
             request: item.request!,
+            requestPath: requestPath,
             isSelected:
-                widget.collectionsViewModel.selectedRequestId ==
-                '${widget.collection.info.name}::${item.name}',
+                widget.collectionsViewModel.selectedRequestPath == requestPath,
             onTap: () {
-              widget.collectionsViewModel.selectRequest(
-                '${widget.collection.info.name}::${item.name}',
+              widget.collectionsViewModel.selectRequest(requestPath);
+              // Set collections view model if not already set
+              widget.homeViewModel.setCollectionsViewModel(
+                widget.collectionsViewModel,
               );
-              widget.homeViewModel.loadFromPostmanRequest(item.request!);
+              widget.homeViewModel.loadFromPostmanRequest(
+                item.request!,
+                requestPath: requestPath,
+              );
             },
+            collectionsViewModel: widget.collectionsViewModel,
+            homeViewModel: widget.homeViewModel,
+            collection: widget.collection,
           ),
         );
       }
       if (item.item != null) {
-        // Handle nested folders
-        widgets.addAll(_buildRequestItems(item.item!));
+        // Handle nested folders - pass indices
+        widgets.addAll(
+          _buildRequestItems(item.item!, itemIndices: currentIndices),
+        );
       }
     }
     return widgets;
@@ -431,16 +496,24 @@ class _CollectionItemState extends State<_CollectionItem> {
 class _RequestItem extends StatelessWidget {
   final String collectionName;
   final String requestName;
-  final PostmanRequest request;
+  final HttpRequest request;
+  final RequestPath requestPath;
   final bool isSelected;
   final VoidCallback onTap;
+  final CollectionsViewModel? collectionsViewModel;
+  final HomeViewModel? homeViewModel;
+  final Collection? collection;
 
   const _RequestItem({
     required this.collectionName,
     required this.requestName,
     required this.request,
+    required this.requestPath,
     required this.isSelected,
     required this.onTap,
+    this.collectionsViewModel,
+    this.homeViewModel,
+    this.collection,
   });
 
   Color _getMethodColor() {
@@ -466,7 +539,7 @@ class _RequestItem extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.only(left: 20, top: 4, bottom: 4),
+        padding: const EdgeInsets.only(left: 20, top: 4, bottom: 4, right: 4),
         decoration: BoxDecoration(
           color: isSelected
               ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
@@ -494,6 +567,40 @@ class _RequestItem extends StatelessWidget {
                 ),
               ),
             ),
+            if (collectionsViewModel != null &&
+                homeViewModel != null &&
+                collection != null)
+              PopupMenuButton<String>(
+                icon: const Icon(Icons.more_vert, size: 14),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                onSelected: (value) async {
+                  if (value == 'edit') {
+                    await CollectionDialogs.showEditRequestDialog(
+                      context,
+                      collectionsViewModel!,
+                      homeViewModel!,
+                      collection!,
+                      requestName,
+                      request,
+                      requestPath: requestPath,
+                    );
+                  } else if (value == 'delete') {
+                    final confirmed =
+                        await CollectionDialogs.showDeleteRequestDialog(
+                          context,
+                          requestName,
+                        );
+                    if (confirmed && context.mounted) {
+                      collectionsViewModel!.deleteRequestByPath(requestPath);
+                    }
+                  }
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(value: 'edit', child: Text('Edit')),
+                  const PopupMenuItem(value: 'delete', child: Text('Delete')),
+                ],
+              ),
           ],
         ),
       ),

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'package:ababil_flutter/ui/viewmodels/collections_view_model.dart';
-import 'package:ababil_flutter/domain/models/postman/collection.dart';
-import 'package:ababil_flutter/domain/models/postman/environment.dart';
+import 'package:ababil_flutter/domain/models/collection.dart';
+import 'package:ababil_flutter/domain/models/environment.dart';
 
 class ImportExportDialog {
   static Future<void> showImportCollectionDialog(
@@ -49,7 +49,7 @@ class ImportExportDialog {
   static Future<void> showExportCollectionDialog(
     BuildContext context,
     CollectionsViewModel viewModel,
-    PostmanCollection collection,
+    Collection collection,
   ) async {
     try {
       final jsonString = await viewModel.exportCollection(collection);
@@ -132,7 +132,7 @@ class ImportExportDialog {
   static Future<void> showExportEnvironmentDialog(
     BuildContext context,
     CollectionsViewModel viewModel,
-    PostmanEnvironment environment,
+    Environment environment,
   ) async {
     try {
       final jsonString = await viewModel.exportEnvironment(environment);

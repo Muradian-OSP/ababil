@@ -1,14 +1,14 @@
-import 'variable.dart';
+import 'request_variable.dart';
 
-class PostmanUrl {
+class RequestUrl {
   final String? raw;
   final String? protocol;
   final List<String>? host;
   final List<String>? path;
-  final List<PostmanQueryParam>? query;
-  final List<PostmanVariable>? variable;
+  final List<QueryParam>? query;
+  final List<RequestVariable>? variable;
 
-  PostmanUrl({
+  RequestUrl({
     this.raw,
     this.protocol,
     this.host,
@@ -17,8 +17,8 @@ class PostmanUrl {
     this.variable,
   });
 
-  factory PostmanUrl.fromJson(Map<String, dynamic> json) {
-    return PostmanUrl(
+  factory RequestUrl.fromJson(Map<String, dynamic> json) {
+    return RequestUrl(
       raw: json['raw'] as String?,
       protocol: json['protocol'] as String?,
       host: json['host'] != null
@@ -29,14 +29,12 @@ class PostmanUrl {
           : null,
       query: json['query'] != null
           ? (json['query'] as List)
-                .map(
-                  (e) => PostmanQueryParam.fromJson(e as Map<String, dynamic>),
-                )
+                .map((e) => QueryParam.fromJson(e as Map<String, dynamic>))
                 .toList()
           : null,
       variable: json['variable'] != null
           ? (json['variable'] as List)
-                .map((e) => PostmanVariable.fromJson(e as Map<String, dynamic>))
+                .map((e) => RequestVariable.fromJson(e as Map<String, dynamic>))
                 .toList()
           : null,
     );
@@ -55,21 +53,16 @@ class PostmanUrl {
   }
 }
 
-class PostmanQueryParam {
+class QueryParam {
   final String key;
   final String? value;
   final bool? disabled;
   final String? description;
 
-  PostmanQueryParam({
-    required this.key,
-    this.value,
-    this.disabled,
-    this.description,
-  });
+  QueryParam({required this.key, this.value, this.disabled, this.description});
 
-  factory PostmanQueryParam.fromJson(Map<String, dynamic> json) {
-    return PostmanQueryParam(
+  factory QueryParam.fromJson(Map<String, dynamic> json) {
+    return QueryParam(
       key: json['key'] as String,
       value: json['value'] as String?,
       disabled: json['disabled'] as bool?,

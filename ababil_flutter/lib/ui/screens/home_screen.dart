@@ -12,6 +12,7 @@ import 'package:ababil_flutter/ui/widgets/resizable_column.dart';
 import 'package:ababil_flutter/ui/widgets/resizable_sidebar.dart';
 import 'package:ababil_flutter/ui/widgets/top_bar.dart';
 import 'package:ababil_flutter/ui/widgets/params_panel.dart';
+import 'package:ababil_flutter/ui/widgets/authorization_panel.dart';
 import 'package:ababil_flutter/ui/widgets/response_tab_bar.dart';
 import 'package:ababil_flutter/ui/viewmodels/collections_view_model.dart';
 
@@ -42,6 +43,8 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _viewModel = HomeViewModel();
     _collectionsViewModel = CollectionsViewModel();
+    // Connect view models for auto-sync
+    _viewModel.setCollectionsViewModel(_collectionsViewModel);
     _viewModel.addListener(_onViewModelChanged);
     _collectionsViewModel.addListener(_onViewModelChanged);
     _urlController.text = _viewModel.url;
@@ -276,9 +279,12 @@ class _HomeScreenState extends State<HomeScreen> {
     final tabs = _getRequestTabs();
     final result = <String>[];
     for (int i = 0; i < tabs.length; i++) {
-      if (i == 2 && _viewModel.headers.isNotEmpty) {
+      if (i == 0 && _viewModel.paramsMap.isNotEmpty) {
+        // Params tab with count
+        result.add('Params (${_viewModel.paramsMap.length})');
+      } else if (i == 2 && _viewModel.headersMap.isNotEmpty) {
         // Headers tab with count
-        result.add('Headers (${_viewModel.headers.length})');
+        result.add('Headers (${_viewModel.headersMap.length})');
       } else {
         result.add(tabs[i]);
       }
@@ -290,25 +296,30 @@ class _HomeScreenState extends State<HomeScreen> {
     switch (_requestTabIndex) {
       case 0: // Params
         return ParamsPanel(
-          params: _viewModel.params.entries.toList(),
+          params: _viewModel.paramsMap,
+          disabledParams: _viewModel.disabledParams,
           onAddParam: () {
             _viewModel.addParam('', '');
           },
           onRemoveParam: _viewModel.removeParam,
           onParamChanged: (param) {
             // Find the old key and update
-            final oldKey = _viewModel.params.keys.firstWhere(
-              (k) => _viewModel.params[k] == param.value,
+            final oldKey = _viewModel.paramsMap.keys.firstWhere(
+              (k) => _viewModel.paramsMap[k] == param.value,
               orElse: () => param.key,
             );
             _viewModel.updateParam(oldKey, param.key, param.value);
           },
+          onToggleParamEnabled: _viewModel.toggleParamEnabled,
         );
       case 1: // Authorization
-        return const Center(child: Text('Authorization - Coming soon'));
+        return AuthorizationPanel(
+          auth: _viewModel.auth,
+          onAuthChanged: (auth) => _viewModel.setAuth(auth),
+        );
       case 2: // Headers
         return HeadersPanel(
-          headers: _viewModel.headers,
+          headers: _viewModel.headersMap,
           disabledHeaders: _viewModel.disabledHeaders,
           onAddHeader: _showAddHeaderDialog,
           onRemoveHeader: _viewModel.removeHeader,

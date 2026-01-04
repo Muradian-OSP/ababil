@@ -1,14 +1,14 @@
 import 'variable.dart';
 
-class PostmanEnvironment {
+class Environment {
   final String? id;
   final String name;
-  final List<PostmanVariable>? values;
+  final List<Variable>? values;
   final String? postmanVariableScope;
   final String? postmanExportedAt;
   final String? postmanExportedUsing;
 
-  PostmanEnvironment({
+  Environment({
     this.id,
     required this.name,
     this.values,
@@ -17,13 +17,13 @@ class PostmanEnvironment {
     this.postmanExportedUsing,
   });
 
-  factory PostmanEnvironment.fromJson(Map<String, dynamic> json) {
-    return PostmanEnvironment(
+  factory Environment.fromJson(Map<String, dynamic> json) {
+    return Environment(
       id: json['id'] as String?,
       name: json['name'] as String,
       values: json['values'] != null
           ? (json['values'] as List)
-                .map((e) => PostmanVariable.fromJson(e as Map<String, dynamic>))
+                .map((e) => Variable.fromJson(e as Map<String, dynamic>))
                 .toList()
           : null,
       postmanVariableScope: json['_postman_variable_scope'] as String?,
