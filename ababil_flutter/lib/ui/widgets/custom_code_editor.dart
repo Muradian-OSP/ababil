@@ -27,6 +27,8 @@ class CustomCodeEditor extends StatefulWidget {
 class _CustomCodeEditorState extends State<CustomCodeEditor> {
   late CodeController _codeController;
   String _currentLanguage = 'json';
+  bool _isUpdatingFromExternal = false;
+  bool _isUpdatingFromCode = false;
 
   @override
   void initState() {
@@ -50,8 +52,11 @@ class _CustomCodeEditorState extends State<CustomCodeEditor> {
       _codeController.language = _getLanguage(_currentLanguage);
     }
     if (oldWidget.controller.text != widget.controller.text &&
-        _codeController.text != widget.controller.text) {
+        _codeController.text != widget.controller.text &&
+        !_isUpdatingFromCode) {
+      _isUpdatingFromExternal = true;
       _codeController.text = widget.controller.text;
+      _isUpdatingFromExternal = false;
     }
   }
 
@@ -64,14 +69,22 @@ class _CustomCodeEditorState extends State<CustomCodeEditor> {
   }
 
   void _onExternalControllerChanged() {
+    if (_isUpdatingFromCode) return;
+
     if (_codeController.text != widget.controller.text) {
+      _isUpdatingFromExternal = true;
       _codeController.text = widget.controller.text;
+      _isUpdatingFromExternal = false;
     }
   }
 
   void _onCodeControllerChanged() {
+    if (_isUpdatingFromExternal) return;
+
     if (widget.controller.text != _codeController.text) {
+      _isUpdatingFromCode = true;
       widget.controller.text = _codeController.text;
+      _isUpdatingFromCode = false;
     }
   }
 
