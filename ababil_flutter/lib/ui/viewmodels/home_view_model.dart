@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:ababil_flutter/data/repositories/http_repository.dart';
 import 'package:ababil_flutter/domain/models/http_request.dart';
@@ -257,7 +261,57 @@ class HomeViewModel extends ChangeNotifier {
     });
   }
 
-  Future<void> sendRequest() async {
+  // Future<void> sendRequest() async {
+  //   if (url.isEmpty) {
+  //     _error = 'Please enter a URL';
+  //     notifyListeners();
+  //     return;
+  //   }
+
+  //   _isLoading = true;
+  //   _error = null;
+  //   _response = null;
+  //   notifyListeners();
+
+  //   try {
+  //     // Filter out disabled headers and params for the actual request
+  //     final enabledHeaders = _currentRequest.header
+  //         ?.where((h) => h.disabled != true)
+  //         .toList();
+
+  //     final enabledQueryParams = _currentRequest.url?.query
+  //         ?.where((p) => p.disabled != true)
+  //         .toList();
+
+  //     // Build request with only enabled items
+  //     final request = _currentRequest.copyWith(
+  //       header: enabledHeaders?.isEmpty ?? true ? null : enabledHeaders,
+  //       url: _currentRequest.url != null
+  //           ? RequestUrl(
+  //               raw: _currentRequest.url!.raw,
+  //               protocol: _currentRequest.url!.protocol,
+  //               host: _currentRequest.url!.host,
+  //               path: _currentRequest.url!.path,
+  //               query: enabledQueryParams?.isEmpty ?? true
+  //                   ? null
+  //                   : enabledQueryParams,
+  //               variable: _currentRequest.url!.variable,
+  //             )
+  //           : null,
+  //     );
+
+  //     _response = await _httpRepository.sendRequest(request);
+  //     _error = null;
+  //   } catch (e) {
+  //     _error = e.toString();
+  //     _response = null;
+  //   } finally {
+  //     _isLoading = false;
+  //     notifyListeners();
+  //   }
+  // }
+
+  Future<void> sendRequest({bool downloadJson = false}) async {
     if (url.isEmpty) {
       _error = 'Please enter a URL';
       notifyListeners();
@@ -270,7 +324,6 @@ class HomeViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Filter out disabled headers and params for the actual request
       final enabledHeaders = _currentRequest.header
           ?.where((h) => h.disabled != true)
           .toList();
@@ -279,7 +332,6 @@ class HomeViewModel extends ChangeNotifier {
           ?.where((p) => p.disabled != true)
           .toList();
 
-      // Build request with only enabled items
       final request = _currentRequest.copyWith(
         header: enabledHeaders?.isEmpty ?? true ? null : enabledHeaders,
         url: _currentRequest.url != null
@@ -298,6 +350,33 @@ class HomeViewModel extends ChangeNotifier {
 
       _response = await _httpRepository.sendRequest(request);
       _error = null;
+      _isLoading = false;
+      notifyListeners();
+      if (downloadJson && _response != null) {
+        final String? path = await FilePicker.platform.saveFile(
+          dialogTitle: 'Save response as JSON',
+          fileName: 'response.json',
+          type: FileType.custom,
+          allowedExtensions: ['json'],
+        );
+
+        if (path != null) {
+          final file = File(path);
+
+          // ✅ FIX: Encode only response BODY
+          if (_response != null) {
+            final dynamic body = _response is HttpResponse
+                ? _response!.body
+                : _response;
+
+            final jsonString = body is String
+                ? body
+                : const JsonEncoder.withIndent('  ').convert(body);
+
+            await file.writeAsString(jsonString);
+          }
+        }
+      }
     } catch (e) {
       _error = e.toString();
       _response = null;

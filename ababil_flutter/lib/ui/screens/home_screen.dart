@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:ababil_flutter/ui/widgets/send_dropdown_item.dart';
 import 'package:flutter/material.dart';
 import 'package:ababil_flutter/ui/viewmodels/home_view_model.dart';
 import 'package:ababil_flutter/ui/widgets/sidebar.dart';
@@ -38,6 +41,11 @@ class _HomeScreenState extends State<HomeScreen> {
     'Test Results',
   ];
 
+  final List<String> _sendDropDownItems = [
+    'Send',
+    'Send and download',
+    // 'Send and Save to Collection',
+  ];
   @override
   void initState() {
     super.initState();
@@ -74,7 +82,24 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {});
   }
 
-  Future<void> _sendRequest() async {
+  // Future<void> _sendRequest() async {
+  //   if (_viewModel.url.isEmpty) {
+  //     ScaffoldMessenger.of(
+  //       context,
+  //     ).showSnackBar(const SnackBar(content: Text('Please enter a URL')));
+  //     return;
+  //   }
+
+  //   await _viewModel.sendRequest();
+
+  //   if (_viewModel.error != null) {
+  //     ScaffoldMessenger.of(
+  //       context,
+  //     ).showSnackBar(SnackBar(content: Text(_viewModel.error!)));
+  //   }
+  // }
+
+  Future<void> _sendRequest({bool downloadJson = false}) async {
     if (_viewModel.url.isEmpty) {
       ScaffoldMessenger.of(
         context,
@@ -82,9 +107,10 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
-    await _viewModel.sendRequest();
+    await _viewModel.sendRequest(downloadJson: downloadJson);
 
     if (_viewModel.error != null) {
+      log(_viewModel.error!);
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(_viewModel.error!)));
@@ -225,25 +251,35 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                               )
-                            : const Text(
-                                'Send',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                            : Row(
+                                children: [
+                                  const Text(
+                                    'Send',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
                               ),
                       ),
+
                       Container(
                         width: 1,
                         height: 20,
-                        color: Colors.white.withOpacity(0.3),
+                        color: Colors.white.withAlpha(128),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.arrow_drop_down, size: 20),
-                        onPressed: () {},
-                        color: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        constraints: const BoxConstraints(),
+                      SendDropdownItem(
+                        items: _sendDropDownItems,
+                        onSelected: (value) {
+                          if (value != null) {
+                            if (value.toLowerCase() == 'send') {
+                              _sendRequest();
+                            } else {
+                              _sendRequest(downloadJson: true);
+                            }
+                          }
+                        },
                       ),
                     ],
                   ),
