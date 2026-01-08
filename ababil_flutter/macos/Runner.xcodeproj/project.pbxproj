@@ -29,6 +29,11 @@
 		33CC11132044BFA00003C045 /* MainFlutterWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33CC11122044BFA00003C045 /* MainFlutterWindow.swift */; };
 		3816542150F3626578B84074 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C696E97EBE58B9046AD5908E /* Pods_Runner.framework */; };
 		62D6FE1D3392B662D112F8A8 /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B9B2EA9D0B5626BCBA281F1F /* Pods_RunnerTests.framework */; };
+		AFE810262F1037F3003EFD63 /* libababil_core.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AFE810252F1037F2003EFD63 /* libababil_core.dylib */; settings = {ATTRIBUTES = (Weak, ); }; };
+		AFE810282F1038B9003EFD63 /* libababil_core.dylib in Resources */ = {isa = PBXBuildFile; fileRef = AFE810272F1038B9003EFD63 /* libababil_core.dylib */; };
+		AFE810292F103973003EFD63 /* libababil_core.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AFE810272F1038B9003EFD63 /* libababil_core.dylib */; };
+		AFE8102A2F103973003EFD63 /* libababil_core.dylib in Bundle Framework */ = {isa = PBXBuildFile; fileRef = AFE810272F1038B9003EFD63 /* libababil_core.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		AFE8102B2F103981003EFD63 /* libababil_core.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AFE810272F1038B9003EFD63 /* libababil_core.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,6 +60,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				AFE8102A2F103973003EFD63 /* libababil_core.dylib in Bundle Framework */,
 			);
 			name = "Bundle Framework";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -81,6 +87,8 @@
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
 		91EF814D76EAD2DE77587DCE /* Pods-RunnerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release.xcconfig"; sourceTree = "<group>"; };
 		9740EEB21CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
+		AFE810252F1037F2003EFD63 /* libababil_core.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libababil_core.dylib; sourceTree = "<group>"; };
+		AFE810272F1038B9003EFD63 /* libababil_core.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libababil_core.dylib; path = ../../ababil_core/target/release/libababil_core.dylib; sourceTree = "<group>"; };
 		B9B2EA9D0B5626BCBA281F1F /* Pods_RunnerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RunnerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C696E97EBE58B9046AD5908E /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CA772D6F55ACB95E2FAF6C94 /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
@@ -103,6 +111,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AFE8102B2F103981003EFD63 /* libababil_core.dylib in Frameworks */,
+				AFE810262F1037F3003EFD63 /* libababil_core.dylib in Frameworks */,
+				AFE810292F103973003EFD63 /* libababil_core.dylib in Frameworks */,
 				3816542150F3626578B84074 /* Pods_Runner.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -120,7 +131,6 @@
 				91EF814D76EAD2DE77587DCE /* Pods-RunnerTests.release.xcconfig */,
 				EA6AA41E310C95B99322D833 /* Pods-RunnerTests.profile.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -146,6 +156,7 @@
 		33CC10E42044A3C60003C045 = {
 			isa = PBXGroup;
 			children = (
+				AFE810272F1038B9003EFD63 /* libababil_core.dylib */,
 				33FAB671232836740065AC1E /* Runner */,
 				33CEB47122A05771004F2AC0 /* Flutter */,
 				331C80D6294CF71000263BE5 /* RunnerTests */,
@@ -204,6 +215,7 @@
 			children = (
 				C696E97EBE58B9046AD5908E /* Pods_Runner.framework */,
 				B9B2EA9D0B5626BCBA281F1F /* Pods_RunnerTests.framework */,
+				AFE810252F1037F2003EFD63 /* libababil_core.dylib */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -315,6 +327,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AFE810282F1038B9003EFD63 /* libababil_core.dylib in Resources */,
 				33CC10F32044A3C60003C045 /* Assets.xcassets in Resources */,
 				33CC10F62044A3C60003C045 /* MainMenu.xib in Resources */,
 			);
@@ -579,6 +592,10 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 			};
@@ -711,6 +728,10 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -730,6 +751,10 @@
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
 				);
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
