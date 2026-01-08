@@ -106,3 +106,14 @@ install(DIRECTORY "${PROJECT_BUILD_DIR}/${FLUTTER_ASSET_DIR_NAME}"
 install(FILES "${AOT_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_DATA_DIR}"
   CONFIGURATIONS Profile;Release
   COMPONENT Runtime)
+
+# Install ababil_core.dll from the Rust build output.
+# The DLL should be in the same directory as the executable for FFI to find it.
+set(ABABIL_CORE_DLL "${CMAKE_CURRENT_SOURCE_DIR}/../../ababil_core/target/release/ababil_core.dll")
+if(EXISTS "${ABABIL_CORE_DLL}")
+  install(FILES "${ABABIL_CORE_DLL}"
+    DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
+    COMPONENT Runtime)
+else()
+  message(WARNING "ababil_core.dll not found at ${ABABIL_CORE_DLL}. Make sure to build the Rust core first: cd ababil_core && cargo build --release")
+endif()
